@@ -20,11 +20,11 @@
 			]
 		},
 		"features": {
-            "views": {
-                "enabled": true,
-                "viewLevel": "model",
-                "disablePipelines": true
-            },
+			"views": {
+				"enabled": true,
+				"viewLevel": "model",
+				"disablePipelines": true
+			},
 			"nestedCollections": false,
 			"disablePatternField": false,
 			"enableForwardEngineering": true,
@@ -33,14 +33,18 @@
 			"disableChoices": true,
 			"enableJsonType": true,
 			"relationships": {
-                "compositeRelationships": true
+				"compositeRelationships": true
 			},
-			"FEScriptCommentsSupported": ["2.x", "3.x"]
+			"FEScriptCommentsSupported": [
+				"2.x",
+				"3.x"
+			]
 		}
 	},
 	"description": "Hackolade plugin for Delta Lake on Databricks, including Azure Databricks, and Databricks on AWS",
 	"scripts": {
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"prepare": "husky install"
 	},
 	"workspaces": [
 		"forward_engineering",
@@ -50,12 +54,11 @@
 		"eslint": "^8.19.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-prettier": "^4.2.1",
+		"husky": "^8.0.1",
 		"lint-staged": "^13.0.3",
 		"prettier": "^2.7.1"
 	},
 	"lint-staged": {
-		"*.js": [
-			"prettier --write"
-		]
+		"*.{js,json}": "prettier --write"
 	}
 }
