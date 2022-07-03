@@ -1,10 +1,10 @@
-'use strict'
+'use strict';
 
 const RESERVED_WORDS = require('./reserverWords');
 const { dependencies } = require('./appDependencies');
 let _;
 
-const setDependencies = ({ lodash }) => _ = lodash;
+const setDependencies = ({ lodash }) => (_ = lodash);
 
 const buildStatement = (mainStatement, isActivated) => {
 	let composeStatements = (...statements) => {
@@ -39,7 +39,7 @@ const buildStatement = (mainStatement, isActivated) => {
 	return chain;
 };
 
-const isEscaped = (name) => /\`[\s\S]*\`/.test(name);
+const isEscaped = name => /\`[\s\S]*\`/.test(name);
 
 const prepareName = (name = '') => {
 	const containSpaces = /\s/g;
@@ -47,27 +47,31 @@ const prepareName = (name = '') => {
 		return `\`${name}\``;
 	} else if (RESERVED_WORDS.includes(name.toLowerCase())) {
 		return `\`${name}\``;
-	} else if (!isNaN(name)){
+	} else if (!isNaN(name)) {
 		return `\`${name}\``;
 	}
 	return name;
 };
 const replaceSpaceWithUnderscore = (name = '') => {
 	return name.replace(/\s/g, '_');
-}
-const getName = (entity) => entity.code || entity.collectionName || entity.name || '';
-const getTab = (tabNum, configData) => Array.isArray(configData) ? (configData[tabNum] || {}) : {};
-const indentString = (str, tab = 4) => (str || '').split('\n').map(s => ' '.repeat(tab) + s).join('\n');
+};
+const getName = entity => entity.code || entity.collectionName || entity.name || '';
+const getTab = (tabNum, configData) => (Array.isArray(configData) ? configData[tabNum] || {} : {});
+const indentString = (str, tab = 4) =>
+	(str || '')
+		.split('\n')
+		.map(s => ' '.repeat(tab) + s)
+		.join('\n');
 
 const descriptors = {};
-const getTypeDescriptor = (typeName) => {
+const getTypeDescriptor = typeName => {
 	if (descriptors[typeName]) {
 		return descriptors[typeName];
 	}
 
 	try {
 		descriptors[typeName] = require(`../../types/${typeName}.json`);
-		
+
 		return descriptors[typeName];
 	} catch (e) {
 		return {};
@@ -81,22 +85,18 @@ const commentDeactivatedStatements = (statement, isActivated = true) => {
 	const insertBeforeEachLine = (statement, insertValue) =>
 		statement
 			.split('\n')
-			.map((line) => `${insertValue}${line}`)
+			.map(line => `${insertValue}${line}`)
 			.join('\n');
 
 	return insertBeforeEachLine(statement, '-- ');
-}
+};
 
 const commentDeactivatedInlineKeys = (keys, deactivatedKeyNames) => {
 	setDependencies(dependencies);
 
 	const [activatedKeys, deactivatedKeys] = dependencies.lodash.partition(
 		keys,
-		(key) =>
-			!(
-				deactivatedKeyNames.has(key) ||
-				deactivatedKeyNames.has(key.slice(1, -1))
-			)
+		key => !(deactivatedKeyNames.has(key) || deactivatedKeyNames.has(key.slice(1, -1))),
 	);
 	if (activatedKeys.length === 0) {
 		return { isAllKeysDeactivated: true, keysString: deactivatedKeys.join(', ') };
@@ -105,12 +105,15 @@ const commentDeactivatedInlineKeys = (keys, deactivatedKeyNames) => {
 		return { isAllKeysDeactivated: false, keysString: activatedKeys.join(', ') };
 	}
 
-	return { isAllKeysDeactivated: false, keysString: `${activatedKeys.join(', ')} /*, ${deactivatedKeys.join(', ')} */` }
-}
+	return {
+		isAllKeysDeactivated: false,
+		keysString: `${activatedKeys.join(', ')} /*, ${deactivatedKeys.join(', ')} */`,
+	};
+};
 
-const removeRedundantTrailingCommaFromStatement = (statement) => {
+const removeRedundantTrailingCommaFromStatement = statement => {
 	setDependencies(dependencies);
-	
+
 	const splitedStatement = statement.split('\n');
 	if (splitedStatement.length < 4 || !splitedStatement[splitedStatement.length - 2].trim().startsWith('--')) {
 		return statement;
@@ -121,22 +124,25 @@ const removeRedundantTrailingCommaFromStatement = (statement) => {
 		}
 	});
 	if (lineWithTrailingCommaIndex !== -1) {
-		splitedStatement[lineWithTrailingCommaIndex] = `${splitedStatement[lineWithTrailingCommaIndex].slice(0,-1)} -- ,`;
+		splitedStatement[lineWithTrailingCommaIndex] = `${splitedStatement[lineWithTrailingCommaIndex].slice(
+			0,
+			-1,
+		)} -- ,`;
 		return splitedStatement.join('\n');
 	}
 	return statement;
-} 
+};
 
 const getCleanedUrl = url => {
-	if(url.endsWith('/')){
-		return url.slice(0,-1)
+	if (url.endsWith('/')) {
+		return url.slice(0, -1);
 	}
 	return url;
-}
+};
 
 const encodeStringLiteral = (str = '') => {
 	return str.replace(/(')/gi, '\\$1').replace(/\n/gi, '\\n');
-}
+};
 
 module.exports = {
 	buildStatement,

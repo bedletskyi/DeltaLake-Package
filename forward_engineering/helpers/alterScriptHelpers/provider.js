@@ -24,8 +24,10 @@ module.exports = app => {
 			if (!collectionName) {
 				return '';
 			}
-			const columnsScripts = columns.map(({ oldName, newName }) => oldName && newName 
-				? assignTemplates(templates.alterTableColumnName, { collectionName, oldName, newName }) : ''
+			const columnsScripts = columns.map(({ oldName, newName }) =>
+				oldName && newName
+					? assignTemplates(templates.alterTableColumnName, { collectionName, oldName, newName })
+					: '',
 			);
 			return columnsScripts.filter(Boolean);
 		},
@@ -37,18 +39,22 @@ module.exports = app => {
 			const { add: addProperties = '', drop: dropProperties = '' } = dataProperties;
 			let script = [];
 			if (addProperties.length) {
-				script = script.concat(assignTemplates(templates.setTableProperties, { name, properties: addProperties }));
+				script = script.concat(
+					assignTemplates(templates.setTableProperties, { name, properties: addProperties }),
+				);
 			}
 			if (dropProperties.length) {
-				script = script.concat(assignTemplates(templates.unsetTableProperties, { name, properties: dropProperties }));
+				script = script.concat(
+					assignTemplates(templates.unsetTableProperties, { name, properties: dropProperties }),
+				);
 			}
 			return script;
 		},
-		
+
 		setTableProperties({ name, properties } = {}) {
 			return !name || !properties ? '' : assignTemplates(templates.setTableProperties, { name, properties });
 		},
-		
+
 		unsetTableProperties({ name, properties } = {}) {
 			return !name || !properties ? '' : assignTemplates(templates.unsetTableProperties, { name, properties });
 		},
@@ -66,7 +72,7 @@ module.exports = app => {
 				return '';
 			}
 			const serDeProperties = properties ? assignTemplates(templates.serDeProperties, { properties }) : '';
-			
+
 			return assignTemplates(templates.alterSerDeProperties, { name, serDeProperties, serDe });
 		},
 
@@ -76,24 +82,31 @@ module.exports = app => {
 			if (newName !== oldName && !!newName && !!oldName) {
 				const fullNewName = getFullEntityName(dbName, newName);
 				const fullOldName = getFullEntityName(dbName, oldName);
-				script = script.concat(assignTemplates(templates.alterViewName, { oldName: fullOldName, newName: fullNewName }));
-			};
+				script = script.concat(
+					assignTemplates(templates.alterViewName, { oldName: fullOldName, newName: fullNewName }),
+				);
+			}
 			if (!fullName) {
 				return script;
 			}
 
 			if (addProperties.length) {
-				script = script.concat(assignTemplates(templates.setViewProperties, { name: fullName, properties: addProperties }));
+				script = script.concat(
+					assignTemplates(templates.setViewProperties, { name: fullName, properties: addProperties }),
+				);
 			}
 			if (dropProperties.length) {
-				script = script.concat(assignTemplates(templates.unsetViewProperties, { name: fullName, properties: dropProperties }));
+				script = script.concat(
+					assignTemplates(templates.unsetViewProperties, { name: fullName, properties: dropProperties }),
+				);
 			}
 			if (selectStatement) {
-				script = script.concat(assignTemplates(templates.alterViewStatement, { name: fullName, query: selectStatement }));
+				script = script.concat(
+					assignTemplates(templates.alterViewStatement, { name: fullName, query: selectStatement }),
+				);
 			}
 
 			return script;
-		}
-
-	}
+		},
+	};
 };

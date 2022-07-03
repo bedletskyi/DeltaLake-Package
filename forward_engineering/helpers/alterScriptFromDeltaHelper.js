@@ -1,15 +1,15 @@
-const { 
+const {
 	getAddContainerScript,
 	getDeleteContainerScript,
 	getModifyContainerScript,
 } = require('./alterScriptHelpers/alterContainerHelper');
-const { 
+const {
 	getAddCollectionsScripts,
 	getDeleteCollectionsScripts,
 	getModifyCollectionsScripts,
 	getDeleteColumnsScripts,
 	getAddColumnsScripts,
-	getModifyColumnsScripts
+	getModifyColumnsScripts,
 } = require('./alterScriptHelpers/alterEntityHelper');
 const {
 	getAddViewsScripts,
@@ -27,15 +27,9 @@ const getItems = (entity, nameProperty, modify) =>
 		.map(items => Object.values(items.properties)[0]);
 
 const getAlterContainersScripts = (schema, provider) => {
-	const addedScripts = getItems(schema, 'containers', 'added').map(
-		getAddContainerScript
-	);
-	const deletedScripts = getItems(schema, 'containers', 'deleted').map(
-		getDeleteContainerScript(provider)
-	);
-	const modifiedScripts = getItems(schema, 'containers', 'modified').flatMap(
-		getModifyContainerScript(provider)
-	);
+	const addedScripts = getItems(schema, 'containers', 'added').map(getAddContainerScript);
+	const deletedScripts = getItems(schema, 'containers', 'deleted').map(getDeleteContainerScript(provider));
+	const modifiedScripts = getItems(schema, 'containers', 'modified').flatMap(getModifyContainerScript(provider));
 	return [...addedScripts, ...deletedScripts, ...modifiedScripts];
 };
 
@@ -48,30 +42,30 @@ const getAlterCollectionsScripts = (schema, definitions, provider) => {
 	const addedCollectionsScripts = getCollectionScripts(
 		getItems(schema, 'entities', 'added'),
 		'created',
-		getAddCollectionsScripts(definitions)
+		getAddCollectionsScripts(definitions),
 	);
 	const deletedCollectionsScripts = getCollectionScripts(
 		getItems(schema, 'entities', 'deleted'),
 		'deleted',
-		getDeleteCollectionsScripts(provider)
+		getDeleteCollectionsScripts(provider),
 	);
 	const modifiedCollectionsScripts = getCollectionScripts(
 		getItems(schema, 'entities', 'modified'),
 		'modified',
-		getModifyCollectionsScripts(definitions, provider)
+		getModifyCollectionsScripts(definitions, provider),
 	);
 
 	const addedColumnsScripts = getColumnScripts(
 		getItems(schema, 'entities', 'added'),
-		getAddColumnsScripts(definitions, provider)
+		getAddColumnsScripts(definitions, provider),
 	);
 	const deletedColumnsScripts = getColumnScripts(
 		getItems(schema, 'entities', 'deleted'),
-		getDeleteColumnsScripts(definitions, provider)
+		getDeleteColumnsScripts(definitions, provider),
 	);
 	const modifiedColumnsScripts = getColumnScripts(
 		getItems(schema, 'entities', 'modified'),
-		getModifyColumnsScripts(definitions, provider)
+		getModifyColumnsScripts(definitions, provider),
 	);
 
 	return [
@@ -88,32 +82,27 @@ const getAlterViewsScripts = (schema, provider) => {
 	const getViewScripts = (views, compMode, getScript) =>
 		views
 			.map(view => ({ ...view, ...(view.role || {}) }))
-			.filter(view => view.compMod?.[compMode]).map(getScript);
+			.filter(view => view.compMod?.[compMode])
+			.map(getScript);
 
-	const getColumnScripts = (items, getScript) => items
-		.map(view => ({ ...view, ...(view.role || {}) }))
-		.filter(view => !view.compMod?.created && !view.compMod?.deleted).flatMap(getScript);
+	const getColumnScripts = (items, getScript) =>
+		items
+			.map(view => ({ ...view, ...(view.role || {}) }))
+			.filter(view => !view.compMod?.created && !view.compMod?.deleted)
+			.flatMap(getScript);
 
-	const addedViewScripts = getViewScripts(
-		getItems(schema, 'views', 'added'),
-		'created',
-		getAddViewsScripts
-	);
+	const addedViewScripts = getViewScripts(getItems(schema, 'views', 'added'), 'created', getAddViewsScripts);
 	const deletedViewScripts = getViewScripts(
 		getItems(schema, 'views', 'deleted'),
 		'deleted',
-		getDeleteViewsScripts(provider)
+		getDeleteViewsScripts(provider),
 	);
 	const modifiedViewScripts = getColumnScripts(
 		getItems(schema, 'views', 'modified'),
-		getModifyViewsScripts(provider)
+		getModifyViewsScripts(provider),
 	);
 
-	return [
-		...addedViewScripts,
-		...deletedViewScripts,
-		...modifiedViewScripts,
-	];
+	return [...addedViewScripts, ...deletedViewScripts, ...modifiedViewScripts];
 };
 
 const getAlterScript = (schema, definitions, data, app) => {
@@ -121,9 +110,12 @@ const getAlterScript = (schema, definitions, data, app) => {
 	const containersScripts = getAlterContainersScripts(schema, provider);
 	const collectionsScripts = getAlterCollectionsScripts(schema, definitions, provider);
 	const viewsScripts = getAlterViewsScripts(schema, provider);
-	let scripts = containersScripts.concat(collectionsScripts, viewsScripts).filter(Boolean).map(script => script.trim());
+	let scripts = containersScripts
+		.concat(collectionsScripts, viewsScripts)
+		.filter(Boolean)
+		.map(script => script.trim());
 	scripts = getCommentedDropScript(scripts, data);
-	return builds(scripts)
+	return builds(scripts);
 };
 
 const getCommentedDropScript = (scripts, data) => {
@@ -140,9 +132,12 @@ const getCommentedDropScript = (scripts, data) => {
 
 const builds = scripts => {
 	const formatScripts = sqlFormatter.format(scripts.filter(Boolean).join('\n\n'), { indent: '    ' });
-	return formatScripts.split(';').map(script => script.trim()).join(';\n\n');
+	return formatScripts
+		.split(';')
+		.map(script => script.trim())
+		.join(';\n\n');
 };
 
 module.exports = {
-	getAlterScript
-}
+	getAlterScript,
+};

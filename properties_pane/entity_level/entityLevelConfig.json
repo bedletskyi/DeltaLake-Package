@@ -152,43 +152,21 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "using",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"delta",
-					"CSVfile",
-					"Hive",
-					"JSONfile",
-					"JDBC",
-					"ORC",
-					"Parquet",
-					"LIBSVM",
-					"textfile"
-				]
+				"options": ["delta", "CSVfile", "Hive", "JSONfile", "JDBC", "ORC", "Parquet", "LIBSVM", "textfile"]
 			},
 			{
 				"propertyName": "Stored as",
 				"propertyKeyword": "storedAsTable",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"textfile",
-					"sequencefile",
-					"ORC",
-					"Parquet",
-					"Avro",
-					"RCfile",
-					"input/output format"
-				]
+				"options": ["textfile", "sequencefile", "ORC", "Parquet", "Avro", "RCfile", "input/output format"]
 			},
 			{
 				"propertyName": "Row format",
 				"propertyKeyword": "rowFormat",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"",
-					"delimited",
-					"SerDe"
-				],
+				"options": ["", "delimited", "SerDe"],
 				"dependency": {
 					"key": "storedAsTable",
 					"value": "textfile"
@@ -472,26 +450,28 @@ making sure that you maintain a proper JSON format.
 	},
 	{
 		"lowerTab": "Bloom Filter Indexes",
-		"structure": [{
-			"propertyName": "Bloom Filter Index",
-			"propertyType": "group",
-			"propertyKeyword": "BloomIndxs",
-			"propertyTooltip": "",
-			"structure": [
-				{
-					"propertyName": "Columns",
-					"propertyKeyword": "forColumns",
-					"propertyType": "fieldList",
-					"template": "orderedList"
-				},
-				{
-					"propertyName": "Options",
-					"propertyKeyword": "options",
-					"propertyTooltip": "options",
-					"propertyType": "details",
-					"template": "textarea"
-				}
-			]
-		}]
+		"structure": [
+			{
+				"propertyName": "Bloom Filter Index",
+				"propertyType": "group",
+				"propertyKeyword": "BloomIndxs",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Columns",
+						"propertyKeyword": "forColumns",
+						"propertyType": "fieldList",
+						"template": "orderedList"
+					},
+					{
+						"propertyName": "Options",
+						"propertyKeyword": "options",
+						"propertyTooltip": "options",
+						"propertyType": "details",
+						"template": "textarea"
+					}
+				]
+			}
+		]
 	}
 ]

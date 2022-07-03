@@ -125,7 +125,8 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "select statement",
 				"template": "textarea",
 				"markdown": false
-			},				{
+			},
+			{
 				"propertyName": "Or replace",
 				"propertyKeyword": "viewOrReplace",
 				"propertyType": "checkbox",
@@ -178,7 +179,7 @@ making sure that you maintain a proper JSON format.
 				"addTimestampButton": true,
 				"propertyType": "details",
 				"template": "textarea"
-			},			
+			},
 			{
 				"propertyKeyword": "pipeline",
 				"hidden": true

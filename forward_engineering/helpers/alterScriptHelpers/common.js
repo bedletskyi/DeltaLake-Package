@@ -1,14 +1,14 @@
 const { dependencies } = require('../appDependencies');
 
 let _;
-const setDependencies = ({ lodash }) => _ = lodash;
+const setDependencies = ({ lodash }) => (_ = lodash);
 
 const getDifferentItems = (newItems = [], oldItems = []) => {
 	setDependencies(dependencies);
 	const intersection = _.intersectionWith(newItems, oldItems, _.isEqual);
 	return {
 		add: _.xorWith(newItems, intersection, _.isEqual),
-		drop:_.xorWith(oldItems, intersection, _.isEqual)
+		drop: _.xorWith(oldItems, intersection, _.isEqual),
 	};
 };
 
@@ -26,7 +26,7 @@ const hydrateTableProperties = ({ new: newItems, old: oldItems }, name) => {
 	return { dataProperties, name };
 };
 
-const compareProperties = ({new: newProperty, old: oldProperty}) => {
+const compareProperties = ({ new: newProperty, old: oldProperty }) => {
 	setDependencies(dependencies);
 	if (!newProperty && !oldProperty) {
 		return;
@@ -34,11 +34,11 @@ const compareProperties = ({new: newProperty, old: oldProperty}) => {
 	return !_.isEqual(newProperty, oldProperty);
 };
 
-const getIsChangeProperties = (compMod, properties) => 
+const getIsChangeProperties = (compMod, properties) =>
 	properties.some(property => compareProperties(compMod[property] || {}));
 
 module.exports = {
 	hydrateTableProperties,
 	getDifferentItems,
-	getIsChangeProperties
-}
+	getIsChangeProperties,
+};

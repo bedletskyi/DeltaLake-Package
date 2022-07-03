@@ -28,4 +28,4 @@ module.exports = {
 	serDeProperties: ' WITH SERDEPROPERTIES (${properties})',
 
 	dropDatabase: 'DROP DATABASE IF EXISTS ${name};',
-}
+};

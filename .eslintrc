@@ -1,7 +1,5 @@
 {
-	"extends": [
-		"prettier"
-	],
+	"extends": ["prettier"],
 	"env": {
 		"node": true,
 		"es2022": true
@@ -17,7 +15,6 @@
 		"no-var": "error",
 		"no-undef": "error",
 		"no-bitwise": "warn",
-
 		"no-dupe-else-if": "warn",
 		"no-duplicate-imports": "warn",
 		"no-import-assign": "warn",

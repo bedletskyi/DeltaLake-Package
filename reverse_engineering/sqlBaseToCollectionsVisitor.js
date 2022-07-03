@@ -3,7 +3,7 @@ const { dependencies } = require('./appDependencies');
 
 class Visitor extends SqlBaseVisitor {
 	visitSingleStatement(ctx) {
-		return this.visit(ctx.statement())
+		return this.visit(ctx.statement());
 	}
 
 	visitCreateTable(ctx) {
@@ -39,10 +39,9 @@ class Visitor extends SqlBaseVisitor {
 			skewedBy: tableClauses.skewSpec?.skewedBy,
 			skewedOn: tableClauses.skewSpec?.skewedOn,
 			tableProperties: tableClauses.tableProperties,
-			query: querySelectProperties
-		}
+			query: querySelectProperties,
+		};
 	}
-
 
 	visitCreateView(ctx) {
 		const identifier = getName(ctx.multipartIdentifier());
@@ -56,19 +55,19 @@ class Visitor extends SqlBaseVisitor {
 			colList: this.visitIfExists(ctx, 'identifierCommentList'),
 			comment: this.visitIfExists(ctx, 'commentSpec', '')[0] || '',
 			selectStatement: this.visitIfExists(ctx, 'query'),
-			tblProperties: getName(ctx.tablePropertyList()[0])
-		}
+			tblProperties: getName(ctx.tablePropertyList()[0]),
+		};
 	}
 
 	visitIdentifierCommentList(ctx) {
-		return this.visit(ctx.identifierComment())
+		return this.visit(ctx.identifierComment());
 	}
 
 	visitIdentifierComment(ctx) {
 		return {
 			identifier: getName(ctx.identifier()),
-			comment: this.visitIfExists(ctx, 'commentSpec', '')
-		}
+			comment: this.visitIfExists(ctx, 'commentSpec', ''),
+		};
 	}
 
 	visitQuery(ctx) {
@@ -76,16 +75,16 @@ class Visitor extends SqlBaseVisitor {
 			select: {
 				start: ctx.start.start,
 				stop: ctx.stop.stop + 1,
-			}
-		}
+			},
+		};
 	}
 
 	visitCreateTableHeader(ctx) {
 		return {
 			isExternal: this.visitFlagValue(ctx, 'EXTERNAL'),
 			isTemporary: this.visitFlagValue(ctx, 'TEMPORARY'),
-			tableName: getName(ctx.multipartIdentifier())
-		}
+			tableName: getName(ctx.multipartIdentifier()),
+		};
 	}
 
 	visitColTypeList(ctx) {
@@ -97,31 +96,30 @@ class Visitor extends SqlBaseVisitor {
 			colName: getName(ctx.errorCapturingIdentifier()),
 			colType: this.visit(ctx.dataType()),
 			isNotNull: this.visitFlagValue(ctx, 'NULL'),
-			colComment: this.visitIfExists(ctx, 'commentSpec', '')
-		}
+			colComment: this.visitIfExists(ctx, 'commentSpec', ''),
+		};
 	}
 
 	visitMapDataType(ctx) {
 		return {
-			type: "map",
+			type: 'map',
 			key: this.visit(ctx.key),
 			val: this.visit(ctx.val),
-		}
-
+		};
 	}
 
 	visitStructDataType(ctx) {
 		return {
-			type: "struct",
-			params: this.visitIfExists(ctx, 'complexColTypeList', '')
-		}
+			type: 'struct',
+			params: this.visitIfExists(ctx, 'complexColTypeList', ''),
+		};
 	}
 
 	visitArrayDataType(ctx) {
 		return {
-			type: "array",
+			type: 'array',
 			elements: this.visit(ctx.dataType()),
-		}
+		};
 	}
 
 	visitPrimitiveDataType(ctx) {
@@ -129,11 +127,11 @@ class Visitor extends SqlBaseVisitor {
 			type: getName(ctx.identifier()).toLowerCase(),
 			precision: getLabelValue(ctx, 'precision'),
 			scale: getLabelValue(ctx, 'scale'),
-		}
+		};
 	}
 
 	visitComplexColTypeList(ctx) {
-		return this.visit(ctx.complexColType())
+		return this.visit(ctx.complexColType());
 	}
 
 	visitComplexColType(ctx) {
@@ -141,8 +139,8 @@ class Visitor extends SqlBaseVisitor {
 			colName: getName(ctx.identifier()),
 			colType: this.visit(ctx.dataType()),
 			isNotNull: this.visitFlagValue(ctx, 'NULL'),
-			colComment: this.visitIfExists(ctx, 'commentSpec', '')
-		}
+			colComment: this.visitIfExists(ctx, 'commentSpec', ''),
+		};
 	}
 
 	visitCreateTableClauses(ctx) {
@@ -155,15 +153,15 @@ class Visitor extends SqlBaseVisitor {
 			createFileFormat: this.visitIfExists(ctx, 'createFileFormat', [])[0],
 			locationSpec: this.visitIfExists(ctx, 'locationSpec', [])[0],
 			commentSpec: this.visitIfExists(ctx, 'commentSpec', [])[0],
-			tableProperties: this.visitIfExists(ctx, 'tablePropertyList', {start:0, stop:0})
-		}
+			tableProperties: this.visitIfExists(ctx, 'tablePropertyList', { start: 0, stop: 0 }),
+		};
 	}
 
-	visitTablePropertyList(ctx){
+	visitTablePropertyList(ctx) {
 		return {
 			start: ctx.start.start,
-			stop: ctx.stop.stop
-		}
+			stop: ctx.stop.stop,
+		};
 	}
 
 	visitLocationSpec(ctx) {
@@ -180,13 +178,13 @@ class Visitor extends SqlBaseVisitor {
 	visitTableFileFormat(ctx) {
 		return {
 			inputFormatClassname: getLabelValue(ctx, 'inFmt'),
-			outputFormatClassname: getLabelValue(ctx, 'outFmt')
+			outputFormatClassname: getLabelValue(ctx, 'outFmt'),
 		};
 	}
 
 	visitGenericFileFormat(ctx) {
 		return {
-			serDeLibrary: getName(ctx.identifier())
+			serDeLibrary: getName(ctx.identifier()),
 		};
 	}
 
@@ -198,7 +196,7 @@ class Visitor extends SqlBaseVisitor {
 			keysTerminatedBy: getLabelValue(ctx, 'keysTerminatedBy'),
 			linesSeparatedBy: getLabelValue(ctx, 'linesSeparatedBy'),
 			nullDefinedAs: getLabelValue(ctx, 'nullDefinedAs'),
-			collectionItemsTerminatedBy: getLabelValue(ctx, 'collectionItemsTerminatedBy')
+			collectionItemsTerminatedBy: getLabelValue(ctx, 'collectionItemsTerminatedBy'),
 		};
 	}
 
@@ -206,14 +204,14 @@ class Visitor extends SqlBaseVisitor {
 		return {
 			format: 'SerDe',
 			serDeLibrary: getLabelValue(ctx, 'name'),
-			serDeProperties: getName(ctx.tablePropertyList())
+			serDeProperties: getName(ctx.tablePropertyList()),
 		};
 	}
 
 	visitSkewSpec(ctx) {
 		return {
 			skewedBy: this.visit(ctx.identifierList()),
-			skewedOn: getName(ctx.constantList()) || getName(ctx.nestedConstantList())
+			skewedOn: getName(ctx.constantList()) || getName(ctx.nestedConstantList()),
 		};
 	}
 
@@ -221,7 +219,7 @@ class Visitor extends SqlBaseVisitor {
 		return {
 			clusteredBy: this.visit(ctx.identifierList()),
 			sortedBy: this.visitIfExists(ctx, 'orderedIdentifierList'),
-			bucketsNum: getName(ctx.INTEGER_VALUE())
+			bucketsNum: getName(ctx.INTEGER_VALUE()),
 		};
 	}
 
@@ -233,14 +231,13 @@ class Visitor extends SqlBaseVisitor {
 		const desc = this.visitFlagValue(ctx, 'DESC');
 		return {
 			name: getName(ctx.errorCapturingIdentifier()),
-			ordering: desc ? 'DESC' : 'ASC'
+			ordering: desc ? 'DESC' : 'ASC',
 		};
 	}
 
 	visitPartitionFieldList(ctx) {
 		return this.visit(ctx.partitionField());
 	}
-
 
 	visitPartitionTransform(ctx) {
 		return getName(ctx.transform());
@@ -282,7 +279,7 @@ class Visitor extends SqlBaseVisitor {
 
 const getLabelValue = (context, label) => {
 	return context[label]?.text ? removeQuotes(context[label]?.text) : '';
-}
+};
 
 const getName = context => {
 	if (!context || dependencies.lodash.isEmpty(context)) {

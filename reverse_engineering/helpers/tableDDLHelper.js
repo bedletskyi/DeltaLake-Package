@@ -1,8 +1,8 @@
-const SqlBaseLexer = require('../parser/SQLBase/SqlBaseLexer')
-const SqlBaseParser = require('../parser/SQLBase/SqlBaseParser')
-const SqlBaseToCollectionVisitor = require('../sqlBaseToCollectionsVisitor')
+const SqlBaseLexer = require('../parser/SQLBase/SqlBaseLexer');
+const SqlBaseParser = require('../parser/SQLBase/SqlBaseParser');
+const SqlBaseToCollectionVisitor = require('../sqlBaseToCollectionsVisitor');
 const ExprErrorListener = require('../antlrErrorListener');
-const columnREHelper = require('./columnsREHelper')
+const columnREHelper = require('./columnsREHelper');
 const antlr4 = require('antlr4');
 const { dependencies } = require('../appDependencies');
 
@@ -12,26 +12,39 @@ const getTableData = async (table, data, logger) => {
 	try {
 		tableData = getTableDataFromDDl(ddl);
 	} catch (e) {
-		logger.log('info', data, `Error parsing ddl statement below. Falling back on alternate method. \n${ddl}\n`, data.hiddenKeys);
+		logger.log(
+			'info',
+			data,
+			`Error parsing ddl statement below. Falling back on alternate method. \n${ddl}\n`,
+			data.hiddenKeys,
+		);
 		return {};
 	}
-	const BloomIndxs = convertIndexes(indexes)
-	const tablePropertiesWithNotNullConstraints = tableData.properties.map(property => ({ ...property, required: nullableMap[property.name] !== 'true' }))
-	const tableSchema = tablePropertiesWithNotNullConstraints.reduce((schema, property) => ({ ...schema, [property.name]: property }), {})
-	const requiredColumns = tablePropertiesWithNotNullConstraints.filter(column => column.required).map(column => column.name);
+	const BloomIndxs = convertIndexes(indexes);
+	const tablePropertiesWithNotNullConstraints = tableData.properties.map(property => ({
+		...property,
+		required: nullableMap[property.name] !== 'true',
+	}));
+	const tableSchema = tablePropertiesWithNotNullConstraints.reduce(
+		(schema, property) => ({ ...schema, [property.name]: property }),
+		{},
+	);
+	const requiredColumns = tablePropertiesWithNotNullConstraints
+		.filter(column => column.required)
+		.map(column => column.name);
 	tableData = {
 		...tableData,
 		properties: tablePropertiesWithNotNullConstraints,
 		schema: tableSchema,
-		requiredColumns
+		requiredColumns,
 	};
 	if (!dependencies.lodash.isEmpty(BloomIndxs)) {
-		return Object.assign(tableData, { "propertiesPane": { ...tableData.propertiesPane, BloomIndxs } });
+		return Object.assign(tableData, { 'propertiesPane': { ...tableData.propertiesPane, BloomIndxs } });
 	}
 	return tableData;
-}
+};
 
-const getTableDataFromDDl = (statement) => {
+const getTableDataFromDDl = statement => {
 	const chars = new antlr4.InputStream(statement);
 	const lexer = new SqlBaseLexer.SqlBaseLexer(chars);
 	lexer.removeErrorListeners();
@@ -44,10 +57,13 @@ const getTableDataFromDDl = (statement) => {
 	const sqlBaseToCollectionVisitor = new SqlBaseToCollectionVisitor();
 	let parsedTableData = tree.accept(sqlBaseToCollectionVisitor);
 	if (!dependencies.lodash.isEmpty(parsedTableData.query)) {
-		parsedTableData.query = statement.substring(parsedTableData.query.select.start, parsedTableData.query.select.stop)
+		parsedTableData.query = statement.substring(
+			parsedTableData.query.select.start,
+			parsedTableData.query.select.stop,
+		);
 	}
 	const properties = parsedTableData.colList.map(column => columnREHelper.reverseTableColumn(column));
-	const tableProperties = parsedTableData.tableProperties[0] || { start: 0, stop: 0 }
+	const tableProperties = parsedTableData.tableProperties[0] || { start: 0, stop: 0 };
 	return {
 		properties,
 		propertiesPane: {
@@ -76,12 +92,11 @@ const getTableDataFromDDl = (statement) => {
 			location: parsedTableData.location,
 			tableProperties: statement.slice(tableProperties.start + 1, tableProperties.stop),
 			comments: parsedTableData.commentSpec,
-		}
-	}
-}
+		},
+	};
+};
 
-
-const getTableProvider = (provider) => {
+const getTableProvider = provider => {
 	switch (provider?.toLowerCase()) {
 		case 'orc':
 			return 'ORC';
@@ -98,26 +113,26 @@ const getTableProvider = (provider) => {
 		case 'csv':
 			return 'CSVfile';
 		case 'libsvm':
-			return 'LIBSVM'
-		default: return provider?.toLowerCase()
+			return 'LIBSVM';
+		default:
+			return provider?.toLowerCase();
 	}
-}
+};
 
 const convertIndexes = indexes => {
 	const indexMap = Object.keys(indexes)
 		.filter(columnName => !dependencies.lodash.isEmpty(indexes[columnName]))
 		.reduce((indexMap, columnName) => {
 			const indexObject = indexes[columnName];
-			const indexString = `fpp = ${indexObject['delta.bloomFilter.fpp']}, numItems = ${indexObject['delta.bloomFilter.numItems']}, maxExpectedFpp = ${indexObject['delta.bloomFilter.maxExpectedFpp']}, enabled = ${indexObject['delta.bloomFilter.enabled']}`
+			const indexString = `fpp = ${indexObject['delta.bloomFilter.fpp']}, numItems = ${indexObject['delta.bloomFilter.numItems']}, maxExpectedFpp = ${indexObject['delta.bloomFilter.maxExpectedFpp']}, enabled = ${indexObject['delta.bloomFilter.enabled']}`;
 			if (indexMap[indexString]) {
-				return { ...indexMap, [indexString]: [...indexMap[indexString], columnName] }
+				return { ...indexMap, [indexString]: [...indexMap[indexString], columnName] };
 			}
-			return { ...indexMap, [indexString]: [columnName] }
+			return { ...indexMap, [indexString]: [columnName] };
 		}, {});
-	return Object.keys(indexMap).map(options => ({ options, forColumns: indexMap[options] }))
-}
-
+	return Object.keys(indexMap).map(options => ({ options, forColumns: indexMap[options] }));
+};
 
 module.exports = {
-	getTableData
+	getTableData,
 };

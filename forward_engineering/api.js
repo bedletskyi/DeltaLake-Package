@@ -7,15 +7,14 @@ const { getIndexes } = require('./helpers/indexHelper');
 const { getViewScript } = require('./helpers/viewHelper');
 const { getCleanedUrl } = require('./helpers/generalHelper');
 let _;
-const fetchRequestHelper = require('../reverse_engineering/helpers/fetchRequestHelper')
-const databricksHelper = require('../reverse_engineering/helpers/databricksHelper')
+const fetchRequestHelper = require('../reverse_engineering/helpers/fetchRequestHelper');
+const databricksHelper = require('../reverse_engineering/helpers/databricksHelper');
 const logHelper = require('../reverse_engineering/logHelper');
 const { getAlterScript } = require('./helpers/alterScriptFromDeltaHelper');
 const sqlFormatter = require('sql-formatter');
 const { DROP_STATEMENTS } = require('./helpers/constants');
 
-const setAppDependencies = ({ lodash }) => _ = lodash;
-
+const setAppDependencies = ({ lodash }) => (_ = lodash);
 
 module.exports = {
 	generateScript(data, logger, callback, app) {
@@ -28,12 +27,8 @@ module.exports = {
 			const externalDefinitions = JSON.parse(data.externalDefinitions);
 			const containerData = data.containerData;
 			const entityData = data.entityData;
-			const areColumnConstraintsAvailable = data.modelData[0].dbVersion.startsWith(
-				'3'
-			);
-			const areForeignPrimaryKeyConstraintsAvailable = !data.modelData[0].dbVersion.startsWith(
-				'1'
-			);
+			const areColumnConstraintsAvailable = data.modelData[0].dbVersion.startsWith('3');
+			const areForeignPrimaryKeyConstraintsAvailable = !data.modelData[0].dbVersion.startsWith('1');
 			let scripts = '';
 
 			if (data.isUpdateScript) {
@@ -45,14 +40,10 @@ module.exports = {
 					containerData,
 					entityData,
 					jsonSchema,
-					[
-						modelDefinitions,
-						internalDefinitions,
-						externalDefinitions,
-					],
+					[modelDefinitions, internalDefinitions, externalDefinitions],
 					null,
 					areColumnConstraintsAvailable,
-					areForeignPrimaryKeyConstraintsAvailable
+					areForeignPrimaryKeyConstraintsAvailable,
 				);
 				scripts = buildScript(
 					databaseStatement,
@@ -61,19 +52,12 @@ module.exports = {
 						modelDefinitions,
 						internalDefinitions,
 						externalDefinitions,
-					])
-				)
+					]),
+				);
 			}
-			callback(
-				null,
-				scripts
-			);
+			callback(null, scripts);
 		} catch (e) {
-			logger.log(
-				'error',
-				{ message: e.message, stack: e.stack },
-				'DeltaLake Forward-Engineering Error'
-			);
+			logger.log('error', { message: e.message, stack: e.stack }, 'DeltaLake Forward-Engineering Error');
 
 			setTimeout(() => {
 				callback({ message: e.message, stack: e.stack });
@@ -89,17 +73,10 @@ module.exports = {
 			const modelDefinitions = JSON.parse(data.modelDefinitions);
 			const externalDefinitions = JSON.parse(data.externalDefinitions);
 			const jsonSchema = parseEntities(data.entities, data.jsonSchema);
-			const internalDefinitions = parseEntities(
-				data.entities,
-				data.internalDefinitions
-			);
-			const areColumnConstraintsAvailable = data.modelData[0].dbVersion.startsWith(
-				'3'
-			);
-			const areForeignPrimaryKeyConstraintsAvailable = !data.modelData[0].dbVersion.startsWith(
-				'1'
-			);
-			
+			const internalDefinitions = parseEntities(data.entities, data.internalDefinitions);
+			const areColumnConstraintsAvailable = data.modelData[0].dbVersion.startsWith('3');
+			const areForeignPrimaryKeyConstraintsAvailable = !data.modelData[0].dbVersion.startsWith('1');
+
 			if (data.isUpdateScript) {
 				const deltaModelSchema = _.first(Object.values(jsonSchema)) || {};
 				const definitions = [modelDefinitions, internalDefinitions, externalDefinitions];
@@ -116,9 +93,9 @@ module.exports = {
 					viewData: data.viewData[viewId],
 					containerData: data.containerData,
 					collectionRefsDefinitionsMap: data.collectionRefsDefinitionsMap,
-					isKeyspaceActivated: true
-				})
-			})
+					isKeyspaceActivated: true,
+				});
+			});
 
 			viewsScripts = viewsScripts.filter(script => !dependencies.lodash.isEmpty(script));
 
@@ -127,40 +104,25 @@ module.exports = {
 					containerData,
 					data.entityData[entityId],
 					jsonSchema[entityId],
-					[
-						internalDefinitions[entityId],
-						modelDefinitions,
-						externalDefinitions,
-					],
-					true
+					[internalDefinitions[entityId], modelDefinitions, externalDefinitions],
+					true,
 				];
 
 				const tableStatement = getTableStatement(
 					...args,
 					null,
 					areColumnConstraintsAvailable,
-					areForeignPrimaryKeyConstraintsAvailable
-				)
+					areForeignPrimaryKeyConstraintsAvailable,
+				);
 
-				return result.concat([
-					tableStatement,
-					getIndexes(...args),
-				]);
+				return result.concat([tableStatement, getIndexes(...args)]);
 			}, []);
 
-			const scripts = buildScript(
-				databaseStatement,
-				...entities,
-				...viewsScripts
-			)
+			const scripts = buildScript(databaseStatement, ...entities, ...viewsScripts);
 
 			callback(null, scripts);
 		} catch (e) {
-			logger.log(
-				'error',
-				{ message: e.message, stack: e.stack },
-				'Hive Forward-Engineering Error'
-			);
+			logger.log('error', { message: e.message, stack: e.stack }, 'Hive Forward-Engineering Error');
 
 			setTimeout(() => {
 				callback({ message: e.message, stack: e.stack });
@@ -177,21 +139,16 @@ module.exports = {
 			clusterId: connectionInfo.clusterId,
 			accessToken: connectionInfo.accessToken,
 			applyToInstanceQueryRequestTimeout: connectionInfo.applyToInstanceQueryRequestTimeout,
-			script: connectionInfo.script
-		}
+			script: connectionInfo.script,
+		};
 
 		try {
-			await fetchRequestHelper.fetchApplyToInstance(connectionData, logger)
-			cb()
+			await fetchRequestHelper.fetchApplyToInstance(connectionData, logger);
+			cb();
 		} catch (err) {
-			logger.log(
-				'error',
-				{ message: err.message, stack: err.stack, error: err },
-				'Apply to instance'
-			);
+			logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Apply to instance');
 			cb({ message: err.message, stack: err.stack });
 		}
-
 	},
 
 	async testConnection(connectionInfo, logger, cb) {
@@ -201,48 +158,46 @@ module.exports = {
 			const connectionData = {
 				host: getCleanedUrl(connectionInfo.host),
 				clusterId: connectionInfo.clusterId,
-				accessToken: connectionInfo.accessToken
-			}
+				accessToken: connectionInfo.accessToken,
+			};
 
 			const clusterState = await databricksHelper.getClusterStateInfo(connectionData, logger);
 			logger.log('info', clusterState, 'Cluster state info');
 
 			if (!clusterState.isRunning) {
-				cb({ message: `Cluster is unavailable. Cluster status: ${clusterState.state}`, type: 'simpleError' })
+				cb({ message: `Cluster is unavailable. Cluster status: ${clusterState.state}`, type: 'simpleError' });
 			}
-			cb()
+			cb();
 		} catch (err) {
-			logger.log(
-				'error',
-				{ message: err.message, stack: err.stack, error: err },
-				'Test connection FE'
-			);
+			logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Test connection FE');
 			cb({ message: err.message, stack: err.stack });
 		}
 	},
 
 	isDropInStatements(data, logger, cb, app) {
+		const callback = (error, script = '') => {
+			cb(
+				error,
+				DROP_STATEMENTS.some(statement => script.includes(statement)),
+			);
+		};
+
 		try {
 			setDependencies(app);
-			
-			const callback = (error, script = '') => {
-				cb(error, DROP_STATEMENTS.some(statement => script.includes(statement)));
-			};
-			
+
 			if (data.level === 'container') {
 				this.generateContainerScript(data, logger, callback, app);
 			} else if (data.level === 'entity') {
 				this.generateScript(data, logger, callback, app);
 			}
-		}	catch (e) {
+		} catch (e) {
 			callback({ message: e.message, stack: e.stack });
 		}
 	},
 };
 
-
 const buildScript = (...statements) => {
-	const script = statements.filter((statement) => statement).join('\n\n');
+	const script = statements.filter(statement => statement).join('\n\n');
 	return sqlFormatter.format(script, { indent: '    ' }) + '\n';
 };
 
@@ -262,4 +217,3 @@ const logInfo = (step, connectionInfo, logger) => {
 	logger.log('info', logHelper.getSystemInfo(connectionInfo), step);
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
-

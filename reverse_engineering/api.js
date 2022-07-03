@@ -5,9 +5,9 @@ let connectionData = null;
 
 const fetchRequestHelper = require('./helpers/fetchRequestHelper');
 const tableDDlHelper = require('./helpers/tableDDLHelper');
-const viewDDLHelper = require('./helpers/viewDDLHelper')
+const viewDDLHelper = require('./helpers/viewDDLHelper');
 const databricksHelper = require('./helpers/databricksHelper');
-const { getErrorMessage, cleanEntityName, isViewDdl, isTableDdl } = require('./helpers/utils')
+const { getErrorMessage, cleanEntityName, isViewDdl, isTableDdl } = require('./helpers/utils');
 const { setDependencies, dependencies } = require('./appDependencies');
 const fs = require('fs');
 const antlr4 = require('antlr4');
@@ -20,7 +20,6 @@ const { getCleanedUrl } = require('../forward_engineering/helpers/generalHelper'
 const mapJsonSchema = require('./thriftService/mapJsonSchema');
 
 module.exports = {
-
 	disconnect: function (connectionInfo, cb) {
 		fetchRequestHelper.destroyActiveContext();
 		cb();
@@ -33,8 +32,8 @@ module.exports = {
 			connectionData = {
 				host: getCleanedUrl(connectionInfo.host),
 				clusterId: connectionInfo.clusterId,
-				accessToken: connectionInfo.accessToken
-			}
+				accessToken: connectionInfo.accessToken,
+			};
 
 			logInfo('Test connection RE', connectionInfo, logger);
 			const clusterState = await databricksHelper.getClusterStateInfo(connectionData, logger);
@@ -42,15 +41,11 @@ module.exports = {
 			await databricksHelper.getFirstDatabaseCollectionName(connectionData, clusterState.spark_version, logger);
 
 			if (!clusterState.isRunning) {
-				cb({ message: `Cluster is unavailable. Cluster status: ${clusterState.state}`, type: 'simpleError' })
+				cb({ message: `Cluster is unavailable. Cluster status: ${clusterState.state}`, type: 'simpleError' });
 			}
-			cb()
+			cb();
 		} catch (err) {
-			logger.log(
-				'error',
-				{ message: err.message, stack: err.stack, error: err },
-				'Test connection RE'
-			);
+			logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Test connection RE');
 			cb({ message: getErrorMessage(err), stack: err.stack });
 		}
 	},
@@ -63,12 +58,16 @@ module.exports = {
 			connectionData = {
 				host: getCleanedUrl(connectionInfo.host),
 				clusterId: connectionInfo.clusterId,
-				accessToken: connectionInfo.accessToken
-			}
+				accessToken: connectionInfo.accessToken,
+			};
 
 			const clusterState = await databricksHelper.getClusterStateInfo(connectionData, logger);
 			logger.log('info', clusterState, 'Cluster state info');
-			const dbCollectionsNames = await databricksHelper.getDatabaseCollectionNames(connectionData, clusterState.spark_version, logger);
+			const dbCollectionsNames = await databricksHelper.getDatabaseCollectionNames(
+				connectionData,
+				clusterState.spark_version,
+				logger,
+			);
 
 			cb(null, dbCollectionsNames);
 		} catch (err) {
@@ -78,17 +77,16 @@ module.exports = {
 					logger.log(
 						'error',
 						{ message: err.message, stack: err.stack, error: err },
-						`Cluster is unavailable. Cluster state: ${clusterState.state}`
+						`Cluster is unavailable. Cluster state: ${clusterState.state}`,
 					);
-					cb({ message: `Cluster is unavailable. Cluster state: ${clusterState.state}`, type: 'simpleError' })
+					cb({
+						message: `Cluster is unavailable. Cluster state: ${clusterState.state}`,
+						type: 'simpleError',
+					});
 					return;
 				}
 			} catch (err) {
-				logger.log(
-					'error',
-					{ message: err.message, stack: err.stack, error: err },
-					`Cluster is unavailable.`
-				);
+				logger.log('error', { message: err.message, stack: err.stack, error: err }, `Cluster is unavailable.`);
 				cb({ message: getErrorMessage(err), stack: err.stack });
 				return;
 			}
@@ -96,7 +94,7 @@ module.exports = {
 			logger.log(
 				'error',
 				{ message: err.message, stack: err.stack, error: err },
-				'Retrieving databases and tables names'
+				'Retrieving databases and tables names',
 			);
 			cb({ message: getErrorMessage(err), stack: err.stack });
 		}
@@ -105,7 +103,7 @@ module.exports = {
 	getDbCollectionsData: async (data, logger, cb, app) => {
 		logger.log('info', data, 'Retrieving schema', data.hiddenKeys);
 
-		const progress = (message) => {
+		const progress = message => {
 			logger.log('info', message, 'Retrieving schema', data.hiddenKeys);
 			logger.progress(message);
 		};
@@ -119,44 +117,83 @@ module.exports = {
 			const collections = data.collectionData.collections;
 			const dataBaseNames = data.collectionData.dataBaseNames;
 
-			progress({ message: 'Start getting data from entities', containerName: 'databases', entityName: 'entities' });
-			const clusterData = await databricksHelper.getClusterData(connectionData, dataBaseNames, collections, logger);
+			progress({
+				message: 'Start getting data from entities',
+				containerName: 'databases',
+				entityName: 'entities',
+			});
+			const clusterData = await databricksHelper.getClusterData(
+				connectionData,
+				dataBaseNames,
+				collections,
+				logger,
+			);
 
 			progress({ message: 'Start getting entities ddl', containerName: 'databases', entityName: 'entities' });
-			const entitiesDdl = await Promise.all(databricksHelper.getEntitiesDDL(connectionData, dataBaseNames, collections, modelData.spark_version, logger));
+			const entitiesDdl = await Promise.all(
+				databricksHelper.getEntitiesDDL(
+					connectionData,
+					dataBaseNames,
+					collections,
+					modelData.spark_version,
+					logger,
+				),
+			);
 			const ddlByEntity = entitiesDdl.reduce((ddlByEntity, ddlObject) => {
-				const entityName = Object.keys(ddlObject)[0]
-				return { ...ddlByEntity, [entityName]: ddlObject[entityName] }
-			}, {})
+				const entityName = Object.keys(ddlObject)[0];
+				return { ...ddlByEntity, [entityName]: ddlObject[entityName] };
+			}, {});
 
-			progress({ message: 'Entities ddl retrieved successfully', containerName: 'databases', entityName: 'entities' });
+			progress({
+				message: 'Entities ddl retrieved successfully',
+				containerName: 'databases',
+				entityName: 'entities',
+			});
 			const entitiesPromises = await dataBaseNames.reduce(async (packagesPromise, dbName) => {
 				const dbData = clusterData[dbName];
 				const packages = await packagesPromise;
 				const tablesPackages = dbData.dbTables
 					.filter(table => isTableDdl(ddlByEntity[`${dbName}.${table.name}`]))
-					.map(async (table) => {
-						const ddl = ddlByEntity[`${dbName}.${table.name}`]
+					.map(async table => {
+						const ddl = ddlByEntity[`${dbName}.${table.name}`];
 
-						progress({ message: 'Start processing data from table', containerName: dbName, entityName: table.name });
+						progress({
+							message: 'Start processing data from table',
+							containerName: dbName,
+							entityName: table.name,
+						});
 						let tableData = await tableDDlHelper.getTableData({ ...table, ddl }, data, logger);
 
-						const columnsOfTypeString = (tableData.properties || []).filter(property => property.mode === 'string');
-						const hasColumnsOfTypeString = !dependencies.lodash.isEmpty(columnsOfTypeString)
+						const columnsOfTypeString = (tableData.properties || []).filter(
+							property => property.mode === 'string',
+						);
+						const hasColumnsOfTypeString = !dependencies.lodash.isEmpty(columnsOfTypeString);
 						let documents = [];
 						if (hasColumnsOfTypeString) {
-							progress({ message: 'Start getting documents from table', containerName: 'databases', entityName: table.name });
+							progress({
+								message: 'Start getting documents from table',
+								containerName: 'databases',
+								entityName: table.name,
+							});
 							documents = await fetchRequestHelper.fetchDocuments({
 								connectionInfo: connectionData,
 								dbName,
 								tableName: table.name,
 								fields: columnsOfTypeString,
-								recordSamplingSettings: data.recordSamplingSettings
+								recordSamplingSettings: data.recordSamplingSettings,
 							});
-							progress({ message: 'Documents retrieved successfully', containerName: 'databases', entityName: table.name });
+							progress({
+								message: 'Documents retrieved successfully',
+								containerName: 'databases',
+								entityName: table.name,
+							});
 						}
 
-						progress({ message: 'Table data processed successfully', containerName: dbName, entityName: table.name });
+						progress({
+							message: 'Table data processed successfully',
+							containerName: dbName,
+							entityName: table.name,
+						});
 						return {
 							dbName,
 							collectionName: table.name,
@@ -165,11 +202,11 @@ module.exports = {
 							views: [],
 							emptyBucket: false,
 							validation: {
-								jsonSchema: { properties: tableData.schema, required: tableData.requiredColumns }
+								jsonSchema: { properties: tableData.schema, required: tableData.requiredColumns },
 							},
-							bucketInfo: dbData.dbProperties
+							bucketInfo: dbData.dbProperties,
 						};
-					})
+					});
 
 				const viewsNames = dataBaseNames.reduce((viewsNames, dbName) => {
 					const views = (collections[dbName] || [])
@@ -188,13 +225,13 @@ module.exports = {
 						entityLevel: {},
 						emptyBucket: isEmptyBucket,
 						bucketInfo: dbData.dbProperties,
-					}
+					};
 					return [...packages, emptyBucket];
 				} else if (!hasViews) {
 					return [...packages, ...tablesPackages];
 				}
 
-				const views = viewsNames[dbName].map((name) => {
+				const views = viewsNames[dbName].map(name => {
 					progress({ message: 'Start processing data from view', containerName: dbName, entityName: name });
 					const ddl = ddlByEntity[`${dbName}.${name}`];
 					let viewData = {};
@@ -220,7 +257,7 @@ module.exports = {
 				});
 
 				return [...packages, ...tablesPackages, viewPackage];
-			}, Promise.resolve([]))
+			}, Promise.resolve([]));
 			const packages = await Promise.all(entitiesPromises);
 			fetchRequestHelper.destroyActiveContext();
 			cb(null, packages, modelData);
@@ -230,9 +267,9 @@ module.exports = {
 				logger.log(
 					'error',
 					{ message: err.message, stack: err.stack, error: err },
-					`Cluster is unavailable. Cluster state: ${clusterState.state}`
+					`Cluster is unavailable. Cluster state: ${clusterState.state}`,
 				);
-				cb({ message: `Cluster is unavailable. Cluster state: ${clusterState.state}`, type: 'simpleError' })
+				cb({ message: `Cluster is unavailable. Cluster state: ${clusterState.state}`, type: 'simpleError' });
 				return;
 			}
 			handleError(logger, err, cb);
@@ -257,7 +294,7 @@ module.exports = {
 			const commands = tree.accept(hqlToCollectionsGenerator);
 			const { result, info, relationships } = commandsService.convertCommandsToReDocs(
 				dependencies.lodash.flatten(commands).filter(Boolean),
-				input
+				input,
 			);
 			callback(null, result, info, relationships, 'multipleSchema');
 		} catch (err) {
@@ -280,10 +317,10 @@ module.exports = {
 					return schema;
 				}
 			});
-		
+
 			callback(null, {
 				...data,
-				jsonSchema: JSON.stringify(result)
+				jsonSchema: JSON.stringify(result),
 			});
 		} catch (error) {
 			const err = {
@@ -298,7 +335,6 @@ module.exports = {
 
 const handleFileData = filePath => {
 	return new Promise((resolve, reject) => {
-
 		fs.readFile(filePath, 'utf-8', (err, content) => {
 			if (err) {
 				reject(err);
@@ -333,20 +369,20 @@ const createViewPackage = (name, viewData = {}) => {
 		},
 		ddl: {
 			script: `CREATE VIEW ${viewName} AS ${selectStatement};`.replace(/`/g, '"'),
-			type: 'postgres'
-		}
+			type: 'postgres',
+		},
 	};
 };
 
 const getArraySubtypeByChildren = (_, arraySchema) => {
-	const subtype = (type) => `array<${type}>`;
+	const subtype = type => `array<${type}>`;
 
 	if (!arraySchema.items) {
 		return;
 	}
 
 	if (Array.isArray(arraySchema.items) && _.uniq(arraySchema.items.map(item => item.type)).length > 1) {
-		return subtype("union");
+		return subtype('union');
 	}
 
 	let item = Array.isArray(arraySchema.items) ? arraySchema.items[0] : arraySchema.items;
@@ -355,35 +391,35 @@ const getArraySubtypeByChildren = (_, arraySchema) => {
 		return;
 	}
 
-	switch(item.type) {
+	switch (item.type) {
 		case 'string':
 		case 'text':
-			return subtype("txt");
+			return subtype('txt');
 		case 'number':
 		case 'numeric':
-			return subtype("num");
+			return subtype('num');
 		case 'interval':
-			return subtype("intrvl");
+			return subtype('intrvl');
 		case 'object':
 		case 'struct':
-			return subtype("struct");
+			return subtype('struct');
 		case 'array':
-			return subtype("array");
+			return subtype('array');
 		case 'map':
-			return subtype("map");
-		case "union":
-			return subtype("union");
-		case "timestamp":
-			return subtype("ts");
-		case "date":
-			return subtype("date");
+			return subtype('map');
+		case 'union':
+			return subtype('union');
+		case 'timestamp':
+			return subtype('ts');
+		case 'date':
+			return subtype('date');
 	}
 
 	if (item.items) {
-		return subtype("array");
+		return subtype('array');
 	}
 
 	if (item.properties) {
-		return subtype("struct");
+		return subtype('struct');
 	}
 };

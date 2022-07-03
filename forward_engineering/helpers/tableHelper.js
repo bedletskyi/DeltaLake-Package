@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const {
 	buildStatement,
@@ -8,107 +8,198 @@ const {
 	replaceSpaceWithUnderscore,
 	commentDeactivatedInlineKeys,
 	removeRedundantTrailingCommaFromStatement,
-	encodeStringLiteral
+	encodeStringLiteral,
 } = require('./generalHelper');
 const { getColumnsStatement, getColumnStatement, getColumns } = require('./columnHelper');
 const keyHelper = require('./keyHelper');
 const { dependencies } = require('./appDependencies');
 
 let _;
-const setDependencies = ({ lodash }) => _ = lodash;
+const setDependencies = ({ lodash }) => (_ = lodash);
 
 const getCreateStatement = ({
-	dbName, tableName, isTemporary, isExternal, using, likeStatement, columnStatement, primaryKeyStatement, foreignKeyStatement, comment, partitionedByKeys,
-	clusteredKeys, sortedKeys, numBuckets, skewedStatement, rowFormatStatement, storedAsStatement, location, tableProperties, selectStatement,
-	isActivated
+	dbName,
+	tableName,
+	isTemporary,
+	isExternal,
+	using,
+	likeStatement,
+	columnStatement,
+	primaryKeyStatement,
+	foreignKeyStatement,
+	comment,
+	partitionedByKeys,
+	clusteredKeys,
+	sortedKeys,
+	numBuckets,
+	skewedStatement,
+	rowFormatStatement,
+	storedAsStatement,
+	location,
+	tableProperties,
+	selectStatement,
+	isActivated,
 }) => {
 	const temporary = isTemporary ? 'TEMPORARY' : '';
 	const external = isExternal ? 'EXTERNAL' : '';
-	const tempExtStatement = ' ' + [temporary, external].filter(d => d).map(item => item + ' ').join('');
+	const tempExtStatement =
+		' ' +
+		[temporary, external]
+			.filter(d => d)
+			.map(item => item + ' ')
+			.join('');
 	const fullTableName = dbName ? `${dbName}.${tableName}` : tableName;
 
 	if (using && likeStatement) {
 		return getCreateLikeStatement({
-			tempExtStatement, fullTableName, using, likeStatement, columnStatement, primaryKeyStatement, foreignKeyStatement, comment, partitionedByKeys,
-			clusteredKeys, sortedKeys, numBuckets, skewedStatement, rowFormatStatement, storedAsStatement, location, tableProperties, selectStatement,
-			isActivated
-		})
+			tempExtStatement,
+			fullTableName,
+			using,
+			likeStatement,
+			columnStatement,
+			primaryKeyStatement,
+			foreignKeyStatement,
+			comment,
+			partitionedByKeys,
+			clusteredKeys,
+			sortedKeys,
+			numBuckets,
+			skewedStatement,
+			rowFormatStatement,
+			storedAsStatement,
+			location,
+			tableProperties,
+			selectStatement,
+			isActivated,
+		});
 	}
 
 	if (using) {
 		return getCreateUsingStatement({
-			tempExtStatement, fullTableName, using, columnStatement, primaryKeyStatement, foreignKeyStatement, comment, partitionedByKeys,
-			clusteredKeys, sortedKeys, numBuckets, skewedStatement, rowFormatStatement, storedAsStatement, location, tableProperties, selectStatement,
-			isActivated
-		})
+			tempExtStatement,
+			fullTableName,
+			using,
+			columnStatement,
+			primaryKeyStatement,
+			foreignKeyStatement,
+			comment,
+			partitionedByKeys,
+			clusteredKeys,
+			sortedKeys,
+			numBuckets,
+			skewedStatement,
+			rowFormatStatement,
+			storedAsStatement,
+			location,
+			tableProperties,
+			selectStatement,
+			isActivated,
+		});
 	}
 
 	return getCreateHiveStatement({
-		tempExtStatement, fullTableName, columnStatement, primaryKeyStatement, foreignKeyStatement, comment, partitionedByKeys,
-		rowFormatStatement, storedAsStatement, location, tableProperties, selectStatement, isActivated
+		tempExtStatement,
+		fullTableName,
+		columnStatement,
+		primaryKeyStatement,
+		foreignKeyStatement,
+		comment,
+		partitionedByKeys,
+		rowFormatStatement,
+		storedAsStatement,
+		location,
+		tableProperties,
+		selectStatement,
+		isActivated,
 	});
 };
 
 const getCreateUsingStatement = ({
-	tempExtStatement, fullTableName, using, columnStatement, primaryKeyStatement, comment, partitionedByKeys,
-	clusteredKeys, sortedKeys, numBuckets, location, tableProperties, selectStatement,
-	isActivated
+	tempExtStatement,
+	fullTableName,
+	using,
+	columnStatement,
+	primaryKeyStatement,
+	comment,
+	partitionedByKeys,
+	clusteredKeys,
+	sortedKeys,
+	numBuckets,
+	location,
+	tableProperties,
+	selectStatement,
+	isActivated,
 }) => {
-	return buildStatement(`CREATE${tempExtStatement}TABLE IF NOT EXISTS ${fullTableName} (`, isActivated)
-		(columnStatement, columnStatement + (primaryKeyStatement ? ',' : ''))
-		(true, ')')
-		(using, `USING ${getCorrectUsing(using)}`)
-		(partitionedByKeys, `PARTITIONED BY (${partitionedByKeys})`)
-		(clusteredKeys, `CLUSTERED BY (${clusteredKeys})`)
-		(sortedKeys && clusteredKeys, `SORTED BY (${sortedKeys})`)
-		(numBuckets && clusteredKeys, `INTO ${numBuckets} BUCKETS`)
-		(location, `LOCATION '${location}'`)
-		(comment, `COMMENT '${encodeStringLiteral(comment)}'`)
-		(tableProperties, `TBLPROPERTIES ${tableProperties}`)
-		(selectStatement, `AS ${selectStatement}`)
-		(true, ';')
-		();
-}
+	return buildStatement(`CREATE${tempExtStatement}TABLE IF NOT EXISTS ${fullTableName} (`, isActivated)(
+		columnStatement,
+		columnStatement + (primaryKeyStatement ? ',' : ''),
+	)(true, ')')(using, `USING ${getCorrectUsing(using)}`)(partitionedByKeys, `PARTITIONED BY (${partitionedByKeys})`)(
+		clusteredKeys,
+		`CLUSTERED BY (${clusteredKeys})`,
+	)(sortedKeys && clusteredKeys, `SORTED BY (${sortedKeys})`)(
+		numBuckets && clusteredKeys,
+		`INTO ${numBuckets} BUCKETS`,
+	)(location, `LOCATION '${location}'`)(comment, `COMMENT '${encodeStringLiteral(comment)}'`)(
+		tableProperties,
+		`TBLPROPERTIES ${tableProperties}`,
+	)(selectStatement, `AS ${selectStatement}`)(true, ';')();
+};
 
 const getCreateHiveStatement = ({
-	tempExtStatement, fullTableName, columnStatement, primaryKeyStatement, foreignKeyStatement, comment, partitionedByKeys,
-	rowFormatStatement, storedAsStatement, location, tableProperties, selectStatement, isActivated
+	tempExtStatement,
+	fullTableName,
+	columnStatement,
+	primaryKeyStatement,
+	foreignKeyStatement,
+	comment,
+	partitionedByKeys,
+	rowFormatStatement,
+	storedAsStatement,
+	location,
+	tableProperties,
+	selectStatement,
+	isActivated,
 }) => {
 	const isAddBrackets = columnStatement || primaryKeyStatement || foreignKeyStatement;
-	return buildStatement(`CREATE${tempExtStatement}TABLE IF NOT EXISTS ${fullTableName} `, isActivated)
-		(isAddBrackets, '(')
-		(columnStatement, columnStatement + (primaryKeyStatement ? ',' : ''))
-		(primaryKeyStatement, primaryKeyStatement)
-		(foreignKeyStatement, foreignKeyStatement)
-		(isAddBrackets, ')')
-		(comment, `COMMENT '${encodeStringLiteral(comment)}'`)
-		(partitionedByKeys, `PARTITIONED BY (${partitionedByKeys})`)
-		(rowFormatStatement, `ROW FORMAT ${rowFormatStatement}`)
-		(storedAsStatement, storedAsStatement)
-		(location, `LOCATION '${location}'`)
-		(tableProperties, `TBLPROPERTIES ${tableProperties}`)
-		(selectStatement, `AS ${selectStatement}`)
-		(true, ';')
-		();
-}
+	return buildStatement(`CREATE${tempExtStatement}TABLE IF NOT EXISTS ${fullTableName} `, isActivated)(
+		isAddBrackets,
+		'(',
+	)(columnStatement, columnStatement + (primaryKeyStatement ? ',' : ''))(primaryKeyStatement, primaryKeyStatement)(
+		foreignKeyStatement,
+		foreignKeyStatement,
+	)(isAddBrackets, ')')(comment, `COMMENT '${encodeStringLiteral(comment)}'`)(
+		partitionedByKeys,
+		`PARTITIONED BY (${partitionedByKeys})`,
+	)(rowFormatStatement, `ROW FORMAT ${rowFormatStatement}`)(storedAsStatement, storedAsStatement)(
+		location,
+		`LOCATION '${location}'`,
+	)(tableProperties, `TBLPROPERTIES ${tableProperties}`)(selectStatement, `AS ${selectStatement}`)(true, ';')();
+};
 
 const getCreateLikeStatement = ({
-	tempExtStatement, fullTableName, using, columnStatement, primaryKeyStatement, foreignKeyStatement,
-	rowFormatStatement, storedAsStatement, location, tableProperties, isActivated
+	tempExtStatement,
+	fullTableName,
+	using,
+	columnStatement,
+	primaryKeyStatement,
+	foreignKeyStatement,
+	rowFormatStatement,
+	storedAsStatement,
+	location,
+	tableProperties,
+	isActivated,
 }) => {
-	return buildStatement(`CREATE${tempExtStatement}TABLE IF NOT EXISTS ${fullTableName} (`, isActivated)
-		(columnStatement, columnStatement + (primaryKeyStatement ? ',' : ''))
-		(primaryKeyStatement, primaryKeyStatement)
-		(foreignKeyStatement, foreignKeyStatement)
-		(true, ')')
-		(using, `USING '${getCorrectUsing(using)}'`)
-		(rowFormatStatement, `ROW FORMAT ${rowFormatStatement}`)
-		(storedAsStatement, storedAsStatement)
-		(tableProperties, `TBLPROPERTIES ${tableProperties}`)
-		(location, `LOCATION '${location}'`)
-		(true, ';')
-		();
-}
+	return buildStatement(`CREATE${tempExtStatement}TABLE IF NOT EXISTS ${fullTableName} (`, isActivated)(
+		columnStatement,
+		columnStatement + (primaryKeyStatement ? ',' : ''),
+	)(primaryKeyStatement, primaryKeyStatement)(foreignKeyStatement, foreignKeyStatement)(true, ')')(
+		using,
+		`USING '${getCorrectUsing(using)}'`,
+	)(rowFormatStatement, `ROW FORMAT ${rowFormatStatement}`)(storedAsStatement, storedAsStatement)(
+		tableProperties,
+		`TBLPROPERTIES ${tableProperties}`,
+	)(location, `LOCATION '${location}'`)(true, ';')();
+};
 
 const getClusteringKeys = (clusteredKeys, deactivatedColumnNames, isParentItemActivated) => {
 	if (!Array.isArray(clusteredKeys) || !clusteredKeys.length) {
@@ -127,7 +218,10 @@ const getSortedKeys = (sortedKeys, deactivatedColumnNames, isParentItemActivated
 	if (!Array.isArray(sortedKeys) || !sortedKeys.length) {
 		return '';
 	}
-	const [activatedKeys, deactivatedKeys] = _.partition(sortedKeys, keyData => !deactivatedColumnNames.has(keyData.name));
+	const [activatedKeys, deactivatedKeys] = _.partition(
+		sortedKeys,
+		keyData => !deactivatedColumnNames.has(keyData.name),
+	);
 	if (!isParentItemActivated || deactivatedKeys.length === 0) {
 		return getSortKeysStatement(sortedKeys);
 	}
@@ -139,12 +233,12 @@ const getSortedKeys = (sortedKeys, deactivatedColumnNames, isParentItemActivated
 };
 
 const getPartitionKeyStatement = (keys, isParentActivated, using) => {
-	const getKeysStatement = (keys) => {
-		if(using === 'Hive'){
+	const getKeysStatement = keys => {
+		if (using === 'Hive') {
 			return keys.map(key => `${key.name} ${key.type}`).join(', ');
 		}
 		return keys.map(key => key.name).join(', ');
-	}
+	};
 
 	if (!Array.isArray(keys) || !keys.length) {
 		return '';
@@ -162,9 +256,11 @@ const getPartitionKeyStatement = (keys, isParentActivated, using) => {
 };
 
 const getPartitionsKeys = (columns, partitions) => {
-	return partitions.map(keyName => {
-		return Object.assign({}, columns[keyName] || { type: 'string' }, { name: keyName });
-	}).filter(key => key);
+	return partitions
+		.map(keyName => {
+			return Object.assign({}, columns[keyName] || { type: 'string' }, { name: keyName });
+		})
+		.filter(key => key);
 };
 
 const removePartitions = (columns, partitions) => {
@@ -177,13 +273,14 @@ const removePartitions = (columns, partitions) => {
 
 const getTableColumnsStatement = (columns, using, partitionKeys) => {
 	if (using === 'Hive') {
-		return removePartitions(columns, partitionKeys)
+		return removePartitions(columns, partitionKeys);
 	}
 	return columns;
-}
+};
 
 const getSkewedKeyStatement = (skewedKeys, skewedOn, asDirectories, deactivatedColumnNames, isParentItemActivated) => {
-	const getStatement = (keysString) => `SKEWED BY (${keysString}) ON ${skewedOn} ${asDirectories ? 'STORED AS DIRECTORIES' : ''}`;
+	const getStatement = keysString =>
+		`SKEWED BY (${keysString}) ON ${skewedOn} ${asDirectories ? 'STORED AS DIRECTORIES' : ''}`;
 
 	if (!Array.isArray(skewedKeys) || !skewedKeys.length) {
 		return '';
@@ -200,34 +297,37 @@ const getSkewedKeyStatement = (skewedKeys, skewedOn, asDirectories, deactivatedC
 	return getStatement(keysString);
 };
 
-const getRowFormat = (tableData) => {
+const getRowFormat = tableData => {
 	if (tableData.storedAsTable !== 'textfile') {
 		return '';
 	}
 
 	if (tableData.rowFormat === 'delimited') {
-		return buildStatement(`DELIMITED`)
-			(tableData.fieldsTerminatedBy, `FIELDS TERMINATED BY '${tableData.fieldsTerminatedBy}'`)
-			(tableData.fieldsescapedBy, `ESCAPED BY '${tableData.fieldsescapedBy}'`)
-			(tableData.collectionItemsTerminatedBy, `COLLECTION ITEMS TERMINATED BY '${tableData.collectionItemsTerminatedBy}'`)
-			(tableData.mapKeysTerminatedBy, `MAP KEYS TERMINATED BY '${tableData.mapKeysTerminatedBy}'`)
-			(tableData.linesTerminatedBy, `LINES TERMINATED BY '${tableData.linesTerminatedBy}'`)
-			(tableData.nullDefinedAs, `NULL DEFINED AS '${tableData.nullDefinedAs}'`)
-			();
+		return buildStatement(`DELIMITED`)(
+			tableData.fieldsTerminatedBy,
+			`FIELDS TERMINATED BY '${tableData.fieldsTerminatedBy}'`,
+		)(tableData.fieldsescapedBy, `ESCAPED BY '${tableData.fieldsescapedBy}'`)(
+			tableData.collectionItemsTerminatedBy,
+			`COLLECTION ITEMS TERMINATED BY '${tableData.collectionItemsTerminatedBy}'`,
+		)(tableData.mapKeysTerminatedBy, `MAP KEYS TERMINATED BY '${tableData.mapKeysTerminatedBy}'`)(
+			tableData.linesTerminatedBy,
+			`LINES TERMINATED BY '${tableData.linesTerminatedBy}'`,
+		)(tableData.nullDefinedAs, `NULL DEFINED AS '${tableData.nullDefinedAs}'`)();
 	} else if (tableData.rowFormat === 'SerDe') {
-		return buildStatement(`SERDE '${tableData.serDeLibrary}'`)
-			(tableData.serDeProperties, `WITH SERDEPROPERTIES (${tableData.serDeProperties})`)
-			();
+		return buildStatement(`SERDE '${tableData.serDeLibrary}'`)(
+			tableData.serDeProperties,
+			`WITH SERDEPROPERTIES (${tableData.serDeProperties})`,
+		)();
 	}
 };
 
-const getLikeStatement = (like) => {
+const getLikeStatement = like => {
 	if (!like) {
 		return;
 	}
-}
+};
 
-const getStoredAsStatement = (tableData) => {
+const getStoredAsStatement = tableData => {
 	if (!tableData.storedAsTable) {
 		return '';
 	}
@@ -253,7 +353,8 @@ const getTableStatement = (containerData, entityData, jsonSchema, definitions, a
 	const dbName = replaceSpaceWithUnderscore(getName(getTab(0, containerData)));
 	const tableData = getTab(0, entityData);
 	const container = getTab(0, containerData);
-	const isTableActivated = tableData.isActivated && (typeof container.isActivated === 'boolean' ? container.isActivated : true);
+	const isTableActivated =
+		tableData.isActivated && (typeof container.isActivated === 'boolean' ? container.isActivated : true);
 	const tableName = replaceSpaceWithUnderscore(getName(tableData));
 	const { columns, deactivatedColumnNames } = getColumns(jsonSchema, areColumnConstraintsAvailable, definitions);
 	const keyNames = keyHelper.getKeyNames(tableData, jsonSchema, definitions);
@@ -267,11 +368,21 @@ const getTableStatement = (containerData, entityData, jsonSchema, definitions, a
 		likeStatement: getLikeStatement(tableData.like),
 		columnStatement: getColumnsStatement(tableColumns, isTableActivated),
 		comment: tableData.description,
-		partitionedByKeys: getPartitionKeyStatement(getPartitionsKeys(columns, keyNames.compositePartitionKey), isTableActivated, tableData.using),
+		partitionedByKeys: getPartitionKeyStatement(
+			getPartitionsKeys(columns, keyNames.compositePartitionKey),
+			isTableActivated,
+			tableData.using,
+		),
 		clusteredKeys: getClusteringKeys(keyNames.compositeClusteringKey, deactivatedColumnNames, isTableActivated),
 		sortedKeys: getSortedKeys(keyNames.sortedByKey, deactivatedColumnNames, isTableActivated),
 		numBuckets: tableData.numBuckets,
-		skewedStatement: getSkewedKeyStatement(keyNames.skewedby, tableData.skewedOn, tableData.skewStoredAsDir, deactivatedColumnNames, isTableActivated),
+		skewedStatement: getSkewedKeyStatement(
+			keyNames.skewedby,
+			tableData.skewedOn,
+			tableData.skewStoredAsDir,
+			deactivatedColumnNames,
+			isTableActivated,
+		),
 		rowFormatStatement: getRowFormat(tableData),
 		storedAsStatement: getStoredAsStatement(tableData),
 		location: tableData.location,
@@ -280,7 +391,14 @@ const getTableStatement = (containerData, entityData, jsonSchema, definitions, a
 		isActivated: isTableActivated,
 	});
 
-	const constraintsStatements = Object.keys(columns).map(colName => ({ colName: colName.replaceAll('`', ''), ...columns[colName] })).filter(column => column.constraints.check).map(column => `ALTER TABLE ${tableName} ADD CONSTRAINT \`${column.colName}_constraint\` CHECK (${column.constraints.check})`).join(';\n')
+	const constraintsStatements = Object.keys(columns)
+		.map(colName => ({ colName: colName.replaceAll('`', ''), ...columns[colName] }))
+		.filter(column => column.constraints.check)
+		.map(
+			column =>
+				`ALTER TABLE ${tableName} ADD CONSTRAINT \`${column.colName}_constraint\` CHECK (${column.constraints.check})`,
+		)
+		.join(';\n');
 	if (!_.isEmpty(constraintsStatements)) {
 		tableStatement = tableStatement + `USE ${dbName};\n\n` + constraintsStatements + ';\n';
 	}
@@ -290,28 +408,27 @@ const getTableStatement = (containerData, entityData, jsonSchema, definitions, a
 const getCorrectUsing = using => {
 	switch (using) {
 		case 'delta':
-			return 'DELTA'
+			return 'DELTA';
 		case 'CSVfile':
-			return 'CSV'
+			return 'CSV';
 		case 'Hive':
-			return 'HIVE'
+			return 'HIVE';
 		case 'JSONfile':
-			return 'JSON'
+			return 'JSON';
 		case 'JDBC':
-			return 'JDBC'
+			return 'JDBC';
 		case 'LIBSVM':
-			return 'LIBSVM'
+			return 'LIBSVM';
 		case 'ORC':
-			return 'ORC'
+			return 'ORC';
 		case 'Parquet':
-			return 'PARQUET'
+			return 'PARQUET';
 		case 'textfile':
-			return 'TEXT'
+			return 'TEXT';
 		default:
 			return '';
 	}
-}
-
+};
 
 module.exports = {
 	getTableStatement,
