@@ -2,4 +2,4 @@
 .vscode
 .idea
 node_modules
-reverse_engineering/parser
+src/reverse_engineering/parser

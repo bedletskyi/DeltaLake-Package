@@ -44,13 +44,16 @@
 	"description": "Hackolade plugin for Delta Lake on Databricks, including Azure Databricks, and Databricks on AWS",
 	"scripts": {
 		"lint": "eslint .",
-		"prepare": "husky install"
+		"prepare": "husky install",
+		"build": "node ./esbuild-config.js"
 	},
 	"workspaces": [
 		"forward_engineering",
 		"reverse_engineering"
 	],
 	"devDependencies": {
+		"esbuild": "^0.14.48",
+		"esbuild-copy-static-files": "^0.1.0",
 		"eslint": "^8.19.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-prettier": "^4.2.1",

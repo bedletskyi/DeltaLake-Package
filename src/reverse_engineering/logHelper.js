@@ -1,6 +1,6 @@
 const os = require('os');
 const net = require('net');
-const packageFile = require('../package.json');
+const packageFile = require('../../package.json');
 
 const checkConnection = (host, port, timeout = 5000) =>
 	new Promise((resolve, reject) => {

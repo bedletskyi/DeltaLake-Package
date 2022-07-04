@@ -1,6 +1,6 @@
 // Generated from grammars/SqlBase.g4 by ANTLR 4.8
 // jshint ignore: start
-var antlr4 = require('antlr4/index');
+var antlr4 = require('antlr4');
 
 /**
  * Verify whether current token is a valid decimal token (which contains dot).

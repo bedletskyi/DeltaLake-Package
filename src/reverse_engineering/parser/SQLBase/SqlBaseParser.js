@@ -1,6 +1,6 @@
 // Generated from grammars/SqlBase.g4 by ANTLR 4.8
 // jshint ignore: start
-var antlr4 = require('antlr4/index');
+var antlr4 = require('antlr4');
 var SqlBaseVisitor = require('./SqlBaseVisitor').SqlBaseVisitor;
 
 var grammarFileName = 'SqlBase.g4';

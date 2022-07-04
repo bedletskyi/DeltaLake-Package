@@ -7,6 +7,5 @@
 		"antlr4": "^4.8.0",
 		"node-fetch": "^2.6.7"
 	},
-	"type": "multi",
 	"installed": true
 }
