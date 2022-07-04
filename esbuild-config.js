@@ -27,4 +27,6 @@ esbuild
 			}),
 		],
 	})
-	.then(args => console.log(args));
+	.then(args => {
+		console.log(args); // eslint-disable-line no-console
+	});
