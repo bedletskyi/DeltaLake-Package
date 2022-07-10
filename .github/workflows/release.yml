@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install modules
-        run: npm pkg set scripts.prepare="echo 'skip husky install'" && npm install --omit=dev
+        run:  npm install
 
       - name: Build plugin
         run: npm run build
