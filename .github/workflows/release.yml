@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install modules
-        run: npm set-script prepare "" && npm install --production
+        run: npm pkg set scripts.prepare="" && npm install --omit=dev
 
       - name: Build plugin
         run: npm run build
