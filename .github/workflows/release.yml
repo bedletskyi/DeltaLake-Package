@@ -6,6 +6,7 @@ name: Create Release
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install modules
-        run: npm i
+        run: npm set-script prepare "" && npm install --production
 
       - name: Build plugin
         run: npm run build
