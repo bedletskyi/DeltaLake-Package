@@ -3,4 +3,4 @@
 .idea
 node_modules
 build
-src/reverse_engineering/parser
+reverse_engineering/parser
