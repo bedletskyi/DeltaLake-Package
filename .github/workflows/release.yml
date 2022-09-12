@@ -50,19 +50,3 @@ jobs:
           asset_path: ./${{ github.event.repository.name }}.zip
           asset_name: ${{ github.event.repository.name }}.zip
           asset_content_type: application/zip
-  publish:
-    name: Update plugin registry
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.PRIVATE_SSH_KEY }}
-          known_hosts: |
-            bitbucket.org ${{ secrets.PUBLIC_SSH_KEY }}
-      - name: Clone plugin registry repository!
-        run: git clone git@bitbucket.org:vitalii_bedletskyi/plugin-registry.git
-
