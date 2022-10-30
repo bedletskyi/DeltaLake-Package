@@ -1,0 +1,67 @@
+{
+	"name": "DeltaLake",
+	"version": "0.1.53",
+	"versionDate": "2022-05-11",
+	"author": "hackolade",
+	"engines": {
+		"hackolade": "4.3.20",
+		"hackoladePlugin": "1.2.0"
+	},
+	"contributes": {
+		"target": {
+			"applicationTarget": "DeltaLake",
+			"title": "Delta Lake on Databricks",
+			"versions": [
+				"Runtime 6",
+				"Runtime 7",
+				"Runtime 8",
+				"Runtime 9",
+				"Runtime 10"
+			]
+		},
+		"features": {
+			"views": {
+				"enabled": true,
+				"viewLevel": "model",
+				"disablePipelines": true
+			},
+			"nestedCollections": false,
+			"disablePatternField": false,
+			"enableForwardEngineering": true,
+			"disableMultipleTypes": false,
+			"enableReverseEngineering": true,
+			"disableChoices": true,
+			"enableJsonType": true,
+			"relationships": {
+				"compositeRelationships": true
+			},
+			"FEScriptCommentsSupported": [
+				"2.x",
+				"3.x"
+			]
+		}
+	},
+	"description": "Hackolade plugin for Delta Lake on Databricks, including Azure Databricks, and Databricks on AWS",
+	"scripts": {
+		"lint": "eslint .",
+		"prepare": "husky install",
+		"build": "node ./esbuild-config.js"
+	},
+	"workspaces": [
+		"forward_engineering",
+		"reverse_engineering"
+	],
+	"devDependencies": {
+		"esbuild": "^0.14.48",
+		"eslint": "^8.19.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"fs-extra": "^10.1.0",
+		"husky": "^8.0.1",
+		"lint-staged": "^13.0.3",
+		"prettier": "^2.7.1"
+	},
+	"lint-staged": {
+		"*.{js,json}": "prettier --write"
+	}
+}

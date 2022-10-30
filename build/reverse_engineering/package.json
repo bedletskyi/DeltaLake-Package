@@ -1,0 +1,11 @@
+{
+	"name": "reverse-egineering",
+	"version": "1.0.0",
+	"description": "",
+	"author": "Hackolade",
+	"dependencies": {
+		"antlr4": "^4.8.0",
+		"node-fetch": "^2.6.7"
+	},
+	"installed": true
+}

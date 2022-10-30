@@ -1,0 +1,66 @@
+{
+	"name": "text",
+	"erdAbbreviation": "<txt>",
+	"dtdAbbreviation": "{ABC}",
+	"parentType": "string",
+	"useSample": true,
+	"jsonType": {
+		"order": 1,
+		"jsonRoot": true,
+		"source": {
+			"key": "mode",
+			"value": "string"
+		}
+	},
+	"default": true,
+	"defaultValues": {
+		"primaryKey": false,
+		"relationshipType": "",
+		"parentRelationship": "",
+		"childRelationships": [],
+		"foreignCollection": "",
+		"foreignField": [],
+		"default": "",
+		"minLength": "",
+		"maxLength": "",
+		"pattern": "",
+		"enum": [],
+		"sample": "",
+		"comments": "",
+		"mode": "string"
+	},
+	"descriptor": [
+		{
+			"schema": {
+				"format": "time"
+			},
+			"format": "hh:mm:ss"
+		},
+		{
+			"schema": {
+				"format": "time"
+			},
+			"format": "hh:mm:ss.nnn"
+		},
+		{
+			"schema": {
+				"format": "time"
+			},
+			"format": "hh:mm:ss.nnnnnn"
+		}
+	],
+	"subtypes": {
+		"object": {
+			"parentType": "jsonObject",
+			"childValueType": ["jsonString", "jsonNumber", "jsonObject", "jsonArray", "jsonBoolean", "jsonNull"]
+		},
+		"array": {
+			"parentType": "jsonArray",
+			"childValueType": ["jsonString", "jsonNumber", "jsonObject", "jsonArray", "jsonBoolean", "jsonNull"]
+		},
+		"string": {
+			"parentType": "string"
+		}
+	},
+	"hiddenOnEntity": "view"
+}
