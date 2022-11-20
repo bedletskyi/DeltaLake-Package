@@ -1,8 +1,8 @@
+name: Create Release
+
 on:
   release:
     types: [created]
-
-name: Create Release
 
 jobs:
   build:
