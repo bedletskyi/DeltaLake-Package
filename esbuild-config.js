@@ -62,7 +62,7 @@ esbuild
 		platform: 'node',
 		outdir: buildFolderPath,
 		minify: true,
-		sourcemap: false,
+		sourcemap: true,
 		logLevel: 'info',
 		plugins: [copyFiles],
 	})
