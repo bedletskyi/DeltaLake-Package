@@ -4,6 +4,7 @@ const fsExtra = require('fs-extra');
 const fs = require('fs/promises');
 
 const buildFolderPath = path.resolve(__dirname, 'build');
+const rootPackageJsonPath = path.resolve(__dirname, 'build', 'package.json');
 
 const excludedExt = ['.js', '.g4', '.interp', '.tokens'];
 const excludeFiles = [
@@ -52,6 +53,18 @@ const copyFiles = {
 	},
 };
 
+const addReleaseFlag = {
+	name: 'addReleaseFlag',
+	setup(build) {
+		build.onEnd(async () => {
+			const fileContent = await fs.readFile(rootPackageJsonPath);
+			const data = JSON.parse(fileContent.toString());
+			data['release'] = true;
+			await fs.writeFile(rootPackageJsonPath, JSON.stringify(data, null, 4));
+		});
+	},
+};
+
 esbuild
 	.build({
 		entryPoints: [
@@ -64,6 +77,6 @@ esbuild
 		minify: true,
 		sourcemap: true,
 		logLevel: 'info',
-		plugins: [copyFiles],
+		plugins: [copyFiles, addReleaseFlag],
 	})
 	.catch(() => process.exit(1));
