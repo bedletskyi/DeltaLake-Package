@@ -3,13 +3,13 @@ name: Build artifacts
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
     name: Build
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     strategy:
       matrix:
         node-version: [ 16.x ]
